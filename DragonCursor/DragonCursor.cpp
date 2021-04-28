@@ -77,6 +77,20 @@ POINT movePoint(POINT origin, POINT direction, float distance) {
 	return retVal;
 }
 
+float minBodyMoveDist = 50;
+const int bodySegmentCount = 22;
+POINT bodyPos[bodySegmentCount];
+float bodyAngle[bodySegmentCount];
+
+void moveBody(POINT newPos, int newAngle) {
+	for (int i = bodySegmentCount - 1; i > 0; i--) {
+		bodyPos[i] = bodyPos[i - 1];
+		bodyAngle[i] = bodyAngle[i - 1];
+	}
+	bodyPos[0] = newPos;
+	bodyAngle[0] = newAngle;
+}
+
 int main()
 {
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -105,9 +119,23 @@ int main()
 	int imageOffsetX = (bm.GetWidth() / 2);
 	int imageOffsetY = (bm.GetHeight() / 2);
 
+	// Load dragon body
+	Image bmBody(L"./DragonBody.bmp");
+
+	// Set up the dragon body
+	POINT bodyStart;
+	GetCursorPos(&bodyStart);
+
+	for (int i = 0; i < bodySegmentCount; i++) {
+		bodyPos[i] = bodyStart;
+		bodyAngle[i] = 0;
+	}
+
 	// Track the old point so that new images are only drawn when the cursor moves
 	POINT oldOrigin;
 	GetCursorPos(&oldOrigin);
+	int oldAngle = 0;
+
 	POINT vectorRight = {1,0};
 	float tracker = 0;
 	while (1) {
@@ -136,7 +164,6 @@ int main()
 
 		if (origin.x != oldOrigin.x || origin.y != oldOrigin.y) {
 			// std::cout << "\nANGLE: " << angle << "... VECTOR: " << direction.x << "," << direction.y;
-
 			// Clear old image
 			redrawWindow(listView);
 
@@ -144,15 +171,30 @@ int main()
 			//POINT negativeDir(direction);
 			//negativeDir.x = -negativeDir.x;
 			//negativeDir.y = -negativeDir.y;
-
 			//POINT newMidPoint = movePoint(midPoint, direction, 50);
 
+			// Move the body
+			if (distance(bodyPos[0], origin) > minBodyMoveDist) {
+				moveBody(oldOrigin, oldAngle);
+			}
+
+			// Draw the body, but not the first two segments, as that would be on the head
+			for (int i = 1; i < bodySegmentCount; i++) {
+				POINT midBodyPoint(bodyPos[i]);
+				midBodyPoint.x -= imageOffsetX;
+				midBodyPoint.y -= imageOffsetY;
+
+				DrawImage(bodyPos[i], midBodyPoint, bodyAngle[i], &g, &bmBody);
+			}
+
+			// Draw the head
 			DrawImage(origin, midPoint, angle, &g, &bm);
 		}
 
-		// Set the old origin
+		// Set the old origin & angle
 		oldOrigin.x = origin.x;
 		oldOrigin.y = origin.y;
+		oldAngle = angle;
 	}
 
 	// Clear the dragon
