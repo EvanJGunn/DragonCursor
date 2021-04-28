@@ -15,7 +15,6 @@ void redrawWindow(HWND myWindow) {
 }
 
 void DrawImage(POINT origin, POINT midPoint, int angle, Graphics *g, Image *image) {
-
 	// Rotate image
 	g->TranslateTransform(origin.x, origin.y);
 	g->RotateTransform(angle);
@@ -28,6 +27,8 @@ void DrawImage(POINT origin, POINT midPoint, int angle, Graphics *g, Image *imag
 	// Draw image
 	g->TranslateTransform(midPoint.x, midPoint.y);
 	Rect myRect(0, 0, 119, 72);
+	// Make everything a little smaller
+	g->ScaleTransform(0.5f, 0.5f);
 	g->DrawImage(image, myRect, 0, 0, 119, 72, UnitPixel, &imAtt, NULL,NULL);
 
 	// g->DrawImage(image,midPoint.x,midPoint.y);
@@ -182,7 +183,7 @@ int main()
 			}
 
 			// Draw the body, but not the first two segments, as that would be on the head
-			for (int i = 2; i < bodySegmentCount; i++) {
+			for (int i = 1; i < bodySegmentCount; i++) {
 				POINT midBodyPoint(bodyPos[i]);
 				midBodyPoint.x -= imageOffsetX;
 				midBodyPoint.y -= imageOffsetY;
