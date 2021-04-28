@@ -173,22 +173,22 @@ int main()
 			//negativeDir.y = -negativeDir.y;
 			//POINT newMidPoint = movePoint(midPoint, direction, 50);
 
+			// Draw the head
+			DrawImage(origin, midPoint, angle, &g, &bm);
+
 			// Move the body
 			if (distance(bodyPos[0], origin) > minBodyMoveDist) {
 				moveBody(oldOrigin, oldAngle);
 			}
 
 			// Draw the body, but not the first two segments, as that would be on the head
-			for (int i = 1; i < bodySegmentCount; i++) {
+			for (int i = 2; i < bodySegmentCount; i++) {
 				POINT midBodyPoint(bodyPos[i]);
 				midBodyPoint.x -= imageOffsetX;
 				midBodyPoint.y -= imageOffsetY;
 
 				DrawImage(bodyPos[i], midBodyPoint, bodyAngle[i], &g, &bmBody);
 			}
-
-			// Draw the head
-			DrawImage(origin, midPoint, angle, &g, &bm);
 		}
 
 		// Set the old origin & angle
